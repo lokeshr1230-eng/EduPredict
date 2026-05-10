@@ -24,8 +24,8 @@ app.use(morgan('dev'));
 app.use('/api', apiRoutes);
 
 // Health Check
-app.get('/', (req, res) => {
-  res.send('EduPredict API is running');
+app.get('/', (req: import('express').Request, res: import('express').Response) => {
+  res.json({ message: 'EduPredict API is running' });
 });
 
 // Start Server
