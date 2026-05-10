@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useCompareStore, College } from "@/store/useCompareStore";
 import Link from "next/link";
+
 interface CollegeDetail {
   id: string;
   name: string;
@@ -18,10 +19,11 @@ interface CollegeDetail {
 export default function ComparePage() {
   const { selectedColleges, toggleCollege } = useCompareStore();
   const [hydratedColleges, setHydratedColleges] = useState<CollegeDetail[]>([]);
+
   useEffect(() => {
     async function hydrateData() {
       const promises = selectedColleges.map(async (c) => {
-        const response = await fetch(`http://localhost:5000/api/colleges/${c.id}`);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/colleges/${c.id}`);
         return response.json();
       });
       const results = await Promise.all(promises);
@@ -80,54 +82,26 @@ export default function ComparePage() {
                       <img alt={college.name} className="w-full h-full object-cover" src={college.imageUrl ?? ""} />
                     </div>
                     <h3 className="font-h3 text-[18px] leading-tight text-primary mb-xs">{college.name}</h3>
-                    <p className="font-body-sm text-body-sm text-on-surface-variant mb-md">
-                      📍 {college.location}
-                    </p>
+                    <p className="font-body-sm text-body-sm text-on-surface-variant mb-md">📍 {college.location}</p>
                   </th>
                 ))}
               </tr>
             </thead>
             <tbody className="font-data-tabular text-data-tabular text-on-surface">
-              <tr className="border-b border-outline-variant hover:bg-surface-container-low transition-colors">
-                <td className="p-md font-label-md text-label-md text-on-surface-variant">Average Package</td>
-                {hydratedColleges.map((college, idx) => (
-                  <td key={college?.id || idx} className="p-md border-l border-outline-variant font-semibold text-secondary">
-                    {college.averagePackage || "N/A"}
-                  </td>
-                ))}
-              </tr>
-              <tr className="bg-surface-bright border-b border-outline-variant hover:bg-surface-container-low transition-colors">
-                <td className="p-md font-label-md text-label-md text-on-surface-variant">Overall Rating</td>
-                {hydratedColleges.map((college, idx) => (
-                  <td key={college?.id || idx} className="p-md border-l border-outline-variant font-bold text-primary">
-                    ★ {college.overallRating || "N/A"}
-                  </td>
-                ))}
-              </tr>
-              <tr className="border-b border-outline-variant hover:bg-surface-container-low transition-colors">
-                <td className="p-md font-label-md text-label-md text-on-surface-variant">Accreditation</td>
-                {hydratedColleges.map((college, idx) => (
-                  <td key={college?.id || idx} className="p-md border-l border-outline-variant text-on-surface-variant">
-                    {college.accreditation || "N/A"}
-                  </td>
-                ))}
-              </tr>
-              <tr className="border-b border-outline-variant hover:bg-surface-container-low transition-colors">
-                <td className="p-md font-label-md text-label-md text-on-surface-variant">Placement Rate</td>
-                {hydratedColleges.map((college, idx) => (
-                  <td key={college?.id || idx} className="p-md border-l border-outline-variant font-semibold text-primary">
-                    {college.placementRate ? `${college.placementRate}%` : "N/A"}
-                  </td>
-                ))}
-              </tr>
-              <tr className="bg-surface-bright border-b border-outline-variant hover:bg-surface-container-low transition-colors">
-                <td className="p-md font-label-md text-label-md text-on-surface-variant">Total Fees</td>
-                {hydratedColleges.map((college, idx) => (
-                  <td key={college?.id || idx} className="p-md border-l border-outline-variant font-semibold text-on-surface">
-                    {college.courses?.[0]?.totalFee || "N/A"}
-                  </td>
-                ))}
-              </tr>
+              {[
+                { label: "Average Package", render: (c: CollegeDetail) => <span className="font-semibold text-secondary">{c.averagePackage || "N/A"}</span> },
+                { label: "Overall Rating", render: (c: CollegeDetail) => <span className="font-bold text-primary">★ {c.overallRating || "N/A"}</span> },
+                { label: "Accreditation", render: (c: CollegeDetail) => <span className="text-on-surface-variant">{c.accreditation || "N/A"}</span> },
+                { label: "Placement Rate", render: (c: CollegeDetail) => <span className="font-semibold text-primary">{c.placementRate ? `${c.placementRate}%` : "N/A"}</span> },
+                { label: "Total Fees", render: (c: CollegeDetail) => <span className="font-semibold text-on-surface">{c.courses?.[0]?.totalFee || "N/A"}</span> },
+              ].map(({ label, render }, i) => (
+                <tr key={label} className={`border-b border-outline-variant hover:bg-surface-container-low transition-colors ${i % 2 !== 0 ? "bg-surface-bright" : ""}`}>
+                  <td className="p-md font-label-md text-label-md text-on-surface-variant">{label}</td>
+                  {hydratedColleges.map((college, idx) => (
+                    <td key={college?.id || idx} className="p-md border-l border-outline-variant">{render(college)}</td>
+                  ))}
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>

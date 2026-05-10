@@ -20,11 +20,6 @@ interface CollegeListing {
   courses: CoursePreview[];
 }
 
-interface Filters {
-  location: string;
-  minRating: number;
-}
-
 export default function Home() {
   const [colleges, setColleges] = useState<CollegeListing[]>([]);
   const [loading, setLoading] = useState(true);
@@ -33,7 +28,6 @@ export default function Home() {
   const searchQuery = useSearchStore((state) => state.searchQuery);
   const hasActiveSearch = searchQuery.trim() !== "" || filters.location !== "";
   const handleCourseChange = (val: string) => setFilters((prev) => ({ ...prev, course: val }));
-
 
   useEffect(() => {
     async function fetchColleges() {
@@ -45,8 +39,7 @@ export default function Home() {
         if (filters.minRating) params.set("minRating", String(filters.minRating));
         if (filters.course) params.set("course", filters.course);
 
-
-        const response = await fetch(`http://localhost:5000/api/colleges?${params.toString()}`);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/colleges?${params.toString()}`);
         const data: CollegeListing[] = await response.json();
         setColleges(data);
       } catch (error) {
