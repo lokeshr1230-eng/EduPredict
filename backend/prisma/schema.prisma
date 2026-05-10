@@ -1,0 +1,109 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id               String            @id @default(uuid())
+  name             String
+  email            String            @unique
+  passwordHash     String
+  avatarUrl        String?
+  createdAt        DateTime          @default(now())
+  answers          Answer[]
+  questions        Question[]
+  reviews          Review[]
+  savedColleges    SavedCollege[]
+  savedComparisons SavedComparison[]
+}
+
+model College {
+  id             String         @id @default(uuid())
+  name           String
+  location       String
+  accreditation  String?
+  campusSize     String?
+  totalFaculty   String?
+  totalStudents  String?
+  highestPackage String?
+  averagePackage String?
+  placementRate  Int?
+  overallRating  Float?
+  logoUrl        String?
+  imageUrl       String?
+  courses        Course[]
+  questions      Question[]
+  reviews        Review[]
+  savedByUsers   SavedCollege[]
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  rating    Int
+  comment   String
+  createdAt DateTime @default(now())
+  userId    String
+  collegeId String
+  college   College  @relation(fields: [collegeId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, collegeId])
+}
+
+model Course {
+  id          String  @id @default(uuid())
+  collegeId   String
+  courseName  String
+  duration    String
+  totalFee    String
+  eligibility String
+  college     College @relation(fields: [collegeId], references: [id], onDelete: Cascade)
+}
+
+model Question {
+  id        String   @id @default(uuid())
+  title     String
+  content   String?
+  tags      String[]
+  upvotes   Int      @default(0)
+  createdAt DateTime @default(now())
+  authorId  String
+  collegeId String?
+  answers   Answer[]
+  author    User     @relation(fields: [authorId], references: [id])
+  college   College? @relation(fields: [collegeId], references: [id])
+}
+
+model Answer {
+  id         String   @id @default(uuid())
+  content    String
+  upvotes    Int      @default(0)
+  isAccepted Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  questionId String
+  authorId   String
+  author     User     @relation(fields: [authorId], references: [id])
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+}
+
+model SavedCollege {
+  userId    String
+  collegeId String
+  savedAt   DateTime @default(now())
+  college   College  @relation(fields: [collegeId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, collegeId])
+}
+
+model SavedComparison {
+  id         String   @id @default(uuid())
+  userId     String
+  name       String
+  collegeIds String[]
+  savedAt    DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
