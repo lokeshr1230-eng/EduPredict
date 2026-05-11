@@ -3,8 +3,8 @@
 A production-grade college discovery and decision platform designed for students and parents to find, compare, and analyze educational institutions.
 
 ## 🚀 Live Deployment
-- **Frontend:** [Link to Vercel Deployment]
-- **Backend API:** [Link to Railway/Render Deployment]
+- **Frontend:** **https://edu-predict-ten.vercel.app/**
+- **Backend API:** https://edupredict-8got.onrender.com
 
 ## 🛠️ Tech Stack
 - **Frontend:** Next.js 15, Tailwind CSS, Zustand (State Management)
